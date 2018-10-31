@@ -19,7 +19,7 @@ from keras.utils.generic_utils import Progbar
 """ build generator model """
 def generator_model(): 
     inputs = Input((10, ))
-    fc1 = Dense(input_din=10, units=128*7*7)(inputs)
+    fc1 = Dense(input_dim=10, units=128*7*7)(inputs)
     fc1 = BatchNormalization()(fc1)
     fc1 = LeakyReLU(0.2)(fc1)
 
@@ -44,11 +44,11 @@ def discriminator_model():
 
     conv1 = Conv2D(64, (5,5), padding='same')(inputs)
     conv1 = LeakyReLU(0.2)(conv1)
-    pool1 = MaxPooling2D(poll_size=(2,2))(conv1)
+    pool1 = MaxPooling2D(pool_size=(2,2))(conv1)
 
     conv2 = Conv2D(128, (5,5), padding='same')(pool1)
     conv2 = LeakyReLU(0.2)(conv2)
-    pool2 = MaxPooling2D(poll_size=(2,2))(conv2)
+    pool2 = MaxPooling2D(pool_size=(2,2))(conv2)
 
     fc1 = Flatten()(pool2)
     fc1 = Dense(1)(fc1)
