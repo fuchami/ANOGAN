@@ -15,6 +15,7 @@ from keras.utils.generic_utils import Progbar
 
 import model
 
+""" plot images for visualization """
 def plot_DCGAN_images(generated_images):
     num = generated_images.shape[0]
     width = int(math.sqrt(num))
@@ -29,7 +30,16 @@ def plot_DCGAN_images(generated_images):
 
     return image
 
-def train_DCGAN(batch_size, X_train):
+""" generate image """
+def generate_img(batch_size):
+    g = model.generator_model()
+    g.load_weights('./saved_model/generator.h5')
+    noise = np.random.uniform(0, 1, (batch_size, 10))
+    gen_img = g.predict(noise)
+
+    return generate_img
+
+def train_DCGAN(X_train, batch_size, epoch):
 
     """ model load """
     d = model.discriminator_model()
@@ -44,7 +54,7 @@ def train_DCGAN(batch_size, X_train):
     d.trainable = True
     d.compile(loss='mse', optimizer=d_opt)
 
-    for epoch in range(10):
+    for epoch in range(epoch):
         print ("Epoch is ", epoch)
         n_iter = int(X_train.shape[0]/batch_size)
         progress_bar = Progbar(target=n_iter)
@@ -70,12 +80,23 @@ def train_DCGAN(batch_size, X_train):
             y = np.array([1] * batch_size + [0] * batch_size)
 
             """ training discriminator """
+            d_loss = d.train_on_batch(X, y)
 
+            """ training generator """
+            d.trainable = False
+            g_loss = d_on_g.train_on_batch(noise, np.array([1] * batch_size))
+            d.trainable = True
 
+            progress_bar.update(index, values=[('g', 'g_loss'), ('d', 'd_loss')])
+        print('')
+
+        """ save weights for each epoch """
+        if not os.path.exists('./saved_model/'):
+            os.makedirs('./saved_model/')
+        g.save_weights('./saved_model/generator.h5', True)
+        d.save_weights('./saved_model/discriminator.h5',True)
 
     return d, g
-
-
 
 def run(args):
 
@@ -94,7 +115,14 @@ def run(args):
     print('train shape: ', X_train.shape)
 
     """ train DCGAN(generator & discriminator) """
-    model_d, model_g = train_DCGAN(args.batchsize, X_train)
+    model_d, model_g = train_DCGAN(X_train,args.batchsize, args.epoch)
+
+    """ test generator """
+    gen_img = generate_img(25)
+    img = plot_DCGAN_images(gen_img)
+    img = (img*127.5)+127.5
+    img = img.astype(np.uint8)
+    img = cv2.resize(img, None, fx=4, fy=4, interpolation=cv2.INTER_NEAREST)
 
     
 
