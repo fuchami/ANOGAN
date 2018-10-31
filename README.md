@@ -1,4 +1,4 @@
-# Pix2Pix for Denoise
+# ANOGAN 
 
 AnoGAN
 
@@ -30,3 +30,8 @@ AnoGAN
     - numpy==1.14.0
     - matplotlib==2.2.2
     - opencv-python==3.4.1.15
+
+# reference
+
+https://github.com/tkwoo/anogan-keras
+https://www.renom.jp/ja/notebooks/tutorial/generative-model/anoGAN/notebook.html
