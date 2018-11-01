@@ -70,4 +70,87 @@ def generator_containg_discriminator(g, d):
 
     return gan
 
+""" discriminator intermediate ayer feature extraction """
+def feature_extractor(d=None):
+    if d is None:
+        d = discriminator_model()
+        d.load_weights('./saved_model/discriminator.h5')
+    
+    intermidiate_model = Model(inputs=d.layers[0].input, outputs=d.layers[-7].output)
+    intermidiate_model.compile(loss='binary_crossentropy', optimizer='rmsprop')
+    return intermidiate_model
+
+""" anomaly GAN loss function """
+def sum_of_residual(y_true, y_pred):
+    return K.sum(K.abs(y_true - y_pred))
+
+""" anomaly detection model """
+def anomaly_detector(g=None, d=None):
+    if g is None:
+        g = generator_model()
+        g.loss_weights('./saved_model/generator.h5')
+    
+    intermidiate_model = feature_extractor(d)
+    intermidiate_model.trainable = False
+
+    g = Model(inputs=g.layers[1].input, outputs=g.layers[-1].output)
+    g.trainable = False
+
+    # input layer cann't be trained.
+    # add new layer as same size & same distribution
+    aInput = Input(shape=(10, ))
+    gInput = Dense((10), trainable=True)(aInput)
+    gInput = Activation('sigmoid')(gInput)
+
+    # g & d feature
+    G_out = g(gInput)
+    D_out = intermidiate_model(G_out)
+    model = Model(inputs=aInput, outputs=[G_out, D_out])
+    model.compile(loss=sum_of_residual, loss_weights=[0.90, 0.10], optimizer='rmsprop')
+
+    # batchnorm learning phase fixed (test) : make on trainable
+    K.set_learning_phase(0)
+
+    return model
+
+    """ anomaly detection """
+    def compute_anomaly_score(model, x, iterations=500, d=None):
+        z = np.random.uniform(0, 1, size=(1, 10))
+        
+        intermidiate_model = feature_extractor(d)
+        d_x = intermidiate_model.compile(x)
+
+        """ learnig for changin latent """
+        loss = model.fit(z, [x, d_x], batch_size=1, epochs=iterations, verbose=0)
+        similar_data, _ = model.predict(z)
+
+        loss = loss.history['loss'][-1]
+
+        return loss, similar_data
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 

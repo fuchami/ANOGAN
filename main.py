@@ -87,7 +87,7 @@ def train_DCGAN(X_train, batch_size, epoch):
             g_loss = d_on_g.train_on_batch(noise, np.array([1] * batch_size))
             d.trainable = True
 
-            progress_bar.update(index, values=[('g', 'g_loss'), ('d', 'd_loss')])
+            progress_bar.update(index, values=[('g', g_loss), ('d', d_loss)])
         print('')
 
         """ save weights for each epoch """
@@ -97,6 +97,24 @@ def train_DCGAN(X_train, batch_size, epoch):
         d.save_weights('./saved_model/discriminator.h5',True)
 
     return d, g
+
+def anomaly_detection(test_img, g=None, d=None):
+    model = model.anomaly_detector(g=g, d=d)
+    ano_score, similar_img = model.compute_anomaly_score(model, test_img.reshape(1, 28, 28, 1), iterations=500, d=d)
+    
+    # anomaly area, 255 normalization
+    np_residual = test_img.reshape(28, 28, 1) - similar_img.reshape(28, 28, 1)
+    np_residual = (np_residual +2)/4
+
+    np_residual = (255*np_residual).astype(np.uint8)
+    origina_x = (test_img.reshape(28,28,1)*127.5+127.5).astype(np.uint8)
+    similar_x = (similar_x.reshape(28,28,1)*127.5+127.5).astype(np.uint8)
+
+    original_x_color = cv2.cvtColor(origina_x, cv2.COLOR_GRAY2BGR)
+    residual_color = cv2.applyColorMap(np_residual, cv2.COLORMAP_JET)
+    show = cv2.addWighted(original_x_color, 0.3, residual_color, 0.7, 0. )
+    
+    return ano_score, original_x, similar_x, show
 
 def run(args):
 
@@ -123,6 +141,16 @@ def run(args):
     img = (img*127.5)+127.5
     img = img.astype(np.uint8)
     img = cv2.resize(img, None, fx=4, fy=4, interpolation=cv2.INTER_NEAREST)
+
+    """ openCV view """
+    cv2.namedWindow('generated', 0)
+    cv2.resizeWindow('generated', 256, 256)
+    cv2.imshow('generated', img)
+    cv2.imwrite('generator.png', img)
+    cv2.waitkey()
+
+    """ other class anomaly detection """
+
 
     
 
