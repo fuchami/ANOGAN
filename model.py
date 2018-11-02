@@ -86,7 +86,7 @@ def sum_of_residual(y_true, y_pred):
 """ anomaly detection model """
 def anomaly_detector(args, g=None, d=None ):
     if g is None:
-        g = generator_model(args.z_dim)
+        g = generator_model(args.zdims)
         g.load_weights('./saved_model/generator.h5')
     
     intermidiate_model = feature_extractor(args, d)
@@ -97,7 +97,7 @@ def anomaly_detector(args, g=None, d=None ):
 
     # input layer cann't be trained.
     # add new layer as same size & same distribution
-    aInput = Input(shape=(args.z_dim, ))
+    aInput = Input(shape=(args.zdims, ))
     gInput = Dense((10), trainable=True)(aInput)
     gInput = Activation('sigmoid')(gInput)
 
