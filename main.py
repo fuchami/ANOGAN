@@ -99,8 +99,8 @@ def train_DCGAN(X_train, batch_size, epoch):
     return d, g
 
 def anomaly_detection(test_img, g=None, d=None):
-    model = model.anomaly_detector(g=g, d=d)
-    ano_score, similar_img = model.compute_anomaly_score(model, test_img.reshape(1, 28, 28, 1), iterations=500, d=d)
+    anogan_model = model.anomaly_detector(g=g, d=d)
+    ano_score, similar_img = model.compute_anomaly_score(anogan_model, test_img.reshape(1, 28, 28, 1), iterations=500, d=d)
     
     # anomaly area, 255 normalization
     np_residual = test_img.reshape(28, 28, 1) - similar_img.reshape(28, 28, 1)
