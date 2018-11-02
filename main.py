@@ -68,7 +68,7 @@ def train_DCGAN(X_train, batch_size, epoch):
             gen_images = g.predict(noise, verbose=0)
 
             # visualize training result
-            if index % 20 == 0:
+            if index % 50 == 0:
                 image = plot_DCGAN_images(gen_images)
                 image =  image*127.5+127.5
                 if not os.path.exists('./result/'):
@@ -149,7 +149,7 @@ def run(args):
     cv2.resizeWindow('generated', 256, 256)
     cv2.imshow('generated', img)
     cv2.imwrite('generator.png', img)
-    cv2.waitkey()
+    cv2.waitKey()
 
     """ other class anomaly detection """
 
