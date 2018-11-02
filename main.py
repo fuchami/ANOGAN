@@ -8,6 +8,7 @@ import os, sys
 import math
 from tqdm import tqdm
 from sklearn.manifold import TSNE
+from keras.datasets import mnist
 
 import model
 import dcgan
@@ -28,7 +29,6 @@ def load_mnist_data():
     print('train shape: ', X_train.shape)
 
     return X_train, X_test, X_test_original, Y_test 
-
 
 def anomaly_detection(test_img, args, g=None, d=None):
     anogan_model = model.anomaly_detector(args, g=g, d=d)
@@ -90,6 +90,8 @@ def run(args):
     if args.mode == 'train':
         print ('============ train on DCGAN ============')
         DCGAN.train(X_train)
+    
+    print("trained")
 
     """ test generator """
     gen_img = DCGAN.generate(25)
@@ -99,11 +101,11 @@ def run(args):
     img = cv2.resize(img, None, fx=4, fy=4, interpolation=cv2.INTER_NEAREST)
 
     """ openCV view """
-    cv2.namedWindow('generated', 0)
-    cv2.resizeWindow('generated', 256, 256)
-    cv2.imshow('generated', img)
-    cv2.imwrite('generator.png', img)
-    cv2.waitKey()
+    #cv2.namedWindow('generated', 0)
+    #cv2.resizeWindow('generated', 256, 256)
+    #cv2.imshow('generated', img)
+    #cv2.imwrite('generator.png', img)
+    #cv2.waitKey()
 
     """ plt view """
     plt.figure(num=0, figsize=(4, 4))
@@ -148,7 +150,7 @@ def main():
     parser.add_argument('--epoch', '-e', default=30)
     parser.add_argument('--batchsize', '-b', default=64)
     parser.add_argument('--img_idx', type=int, default=14)
-    parser.add_argument('--label_idx', type=int, default=7)
+    parser.add_argument('--label_idx', type=int, default=0)
     parser.add_argument('--mode', '-m' , type=str, default='test',help='train, test')
     parser.add_argument('--img_size', type=int, default=28)
     parser.add_argument('--zdims', type=int, default=10)
