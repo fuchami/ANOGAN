@@ -104,7 +104,7 @@ def anomaly_detection(test_img, g=None, d=None):
     
     # anomaly area, 255 normalization
     np_residual = test_img.reshape(28, 28, 1) - similar_img.reshape(28, 28, 1)
-    np_residual = (np_residual +2)/4
+    np_residual = (np_residual + 2)/4
 
     np_residual = (255*np_residual).astype(np.uint8)
     origina_x = (test_img.reshape(28,28,1)*127.5+127.5).astype(np.uint8)

@@ -118,7 +118,7 @@ def compute_anomaly_score(model, x, iterations=500, d=None):
     z = np.random.uniform(0, 1, size=(1, 10))
     
     intermidiate_model = feature_extractor(d)
-    d_x = intermidiate_model.compile(x)
+    d_x = intermidiate_model.predict(x)
 
     """ learnig for changin latent """
     loss = model.fit(z, [x, d_x], batch_size=1, epochs=iterations, verbose=0)
