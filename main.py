@@ -107,12 +107,12 @@ def anomaly_detection(test_img, g=None, d=None):
     np_residual = (np_residual + 2)/4
 
     np_residual = (255*np_residual).astype(np.uint8)
-    origina_x = (test_img.reshape(28,28,1)*127.5+127.5).astype(np.uint8)
+    original_x = (test_img.reshape(28,28,1)*127.5+127.5).astype(np.uint8)
     similar_x = (similar_img.reshape(28,28,1)*127.5+127.5).astype(np.uint8)
 
-    original_x_color = cv2.cvtColor(origina_x, cv2.COLOR_GRAY2BGR)
+    original_x_color = cv2.cvtColor(original_x, cv2.COLOR_GRAY2BGR)
     residual_color = cv2.applyColorMap(np_residual, cv2.COLORMAP_JET)
-    show = cv2.addWighted(original_x_color, 0.3, residual_color, 0.7, 0. )
+    show = cv2.addWeighted(original_x_color, 0.3, residual_color, 0.7, 0.)
     
     return ano_score, original_x, similar_x, show
 
