@@ -88,7 +88,7 @@ def sum_of_residual(y_true, y_pred):
 def anomaly_detector(g=None, d=None):
     if g is None:
         g = generator_model()
-        g.loss_weights('./saved_model/generator.h5')
+        g.load_weights('./saved_model/generator.h5')
     
     intermidiate_model = feature_extractor(d)
     intermidiate_model.trainable = False
