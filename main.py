@@ -35,7 +35,7 @@ def generate_img(batch_size):
     g = model.generator_model()
     g.load_weights('./saved_model/generator.h5')
     noise = np.random.uniform(0, 1, (batch_size, 10))
-    gen_img = g.predict(noise)
+    generate_img = g.predict(noise)
 
     return generate_img
 
@@ -120,8 +120,8 @@ def run(args):
 
     """ load mnist data """
     (X_train, Y_train), (X_test, Y_test) = mnist.load_data()
-    X_train = (X_train.astype(np.float32)) - 127.5 / 127.5
-    X_test = (X_test.astype(np.float32)) - 127.5 / 127.5
+    X_train = (X_train.astype(np.float32) - 127.5) / 127.5
+    X_test = (X_test.astype(np.float32) - 127.5) / 127.5
 
     X_train = X_train[:,:,:,None]
     X_test = X_test[:,:,:,None]
@@ -133,7 +133,9 @@ def run(args):
     print('train shape: ', X_train.shape)
 
     """ train DCGAN(generator & discriminator) """
-    model_d, model_g = train_DCGAN(X_train,args.batchsize, args.epoch)
+    if args.mode == 'train':
+        print ('============ train on DCGAN ============')
+        model_d, model_g = train_DCGAN(X_train,args.batchsize, args.epoch)
 
     """ test generator """
     gen_img = generate_img(25)
@@ -189,6 +191,7 @@ def main():
     parser.add_argument('--batchsize', '-b', default=64)
     parser.add_argument('--img_idx', type=int, default=14)
     parser.add_argument('--label_idx', type=int, default=7)
+    parser.add_argument('--mode', '-m' , type=str, default='test',help='train, test')
 
     args = parser.parse_args()
 
