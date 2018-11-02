@@ -21,7 +21,6 @@ from keras.utils.vis_utils import plot_model
 import tensorflow as tf
 
 import model
-
 class DCGAN():
     def __init__(self, args ):
 

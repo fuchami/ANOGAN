@@ -70,9 +70,9 @@ def generator_containg_discriminator(g, d, z_dim):
     return gan
 
 """ discriminator intermediate ayer feature extraction """
-def feature_extractor(d=None):
+def feature_extractor(args, d=None):
     if d is None:
-        d = discriminator_model()
+        d = discriminator_model(args.img_size)
         d.load_weights('./saved_model/discriminator.h5')
     
     intermidiate_model = Model(inputs=d.layers[0].input, outputs=d.layers[-7].output)
@@ -84,12 +84,12 @@ def sum_of_residual(y_true, y_pred):
     return K.sum(K.abs(y_true - y_pred))
 
 """ anomaly detection model """
-def anomaly_detector(g=None, d=None):
+def anomaly_detector(args, g=None, d=None ):
     if g is None:
-        g = generator_model()
+        g = generator_model(args.z_dim)
         g.load_weights('./saved_model/generator.h5')
     
-    intermidiate_model = feature_extractor(d)
+    intermidiate_model = feature_extractor(args, d)
     intermidiate_model.trainable = False
 
     g = Model(inputs=g.layers[1].input, outputs=g.layers[-1].output)
@@ -97,7 +97,7 @@ def anomaly_detector(g=None, d=None):
 
     # input layer cann't be trained.
     # add new layer as same size & same distribution
-    aInput = Input(shape=(10, ))
+    aInput = Input(shape=(args.z_dim, ))
     gInput = Dense((10), trainable=True)(aInput)
     gInput = Activation('sigmoid')(gInput)
 
@@ -113,10 +113,10 @@ def anomaly_detector(g=None, d=None):
     return model
 
 """ anomaly detection """
-def compute_anomaly_score(model, x, iterations=500, d=None):
+def compute_anomaly_score(args, model, x, iterations=500, d=None):
     z = np.random.uniform(0, 1, size=(1, 10))
     
-    intermidiate_model = feature_extractor(d)
+    intermidiate_model = feature_extractor(args, d)
     d_x = intermidiate_model.predict(x)
 
     """ learnig for changin latent """

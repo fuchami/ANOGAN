@@ -8,20 +8,12 @@ import os, sys
 import math
 from tqdm import tqdm
 
-import keras
-from keras.datasets import mnist
-from keras.optimizers import Adam, RMSprop
-from keras.utils.generic_utils import Progbar
-
 import model
 import dcgan
 
-
-
-
-def anomaly_detection(test_img, g=None, d=None):
-    anogan_model = model.anomaly_detector(g=g, d=d)
-    ano_score, similar_img = model.compute_anomaly_score(anogan_model, test_img.reshape(1, 28, 28, 1), iterations=500, d=d)
+def anomaly_detection(test_img, args, g=None, d=None):
+    anogan_model = model.anomaly_detector(args, g=g, d=d)
+    ano_score, similar_img = model.compute_anomaly_score(args, anogan_model, test_img.reshape(1, 28, 28, 1), iterations=500, d=d)
     
     # anomaly area, 255 normalization
     np_residual = test_img.reshape(28, 28, 1) - similar_img.reshape(28, 28, 1)
@@ -76,8 +68,13 @@ def run(args):
     cv2.imwrite('generator.png', img)
     cv2.waitKey()
 
-    """ other class anomaly detection """
+    """ plt view """
+    plt.figure(num=0, figsize=(4, 4))
+    plt.title('trained generator')
+    plt.imshow(img, cmap=plt.cm.gray)
+    plt.show()
 
+    """ other class anomaly detection """
     # compute anomaly score - sample from test set
     #test_img = X_test_original[Y_test==1][30]
     # compute anomaly score - sample from strange image
@@ -90,7 +87,7 @@ def run(args):
     # test_img = np.random.uniform(-1, 1 (28, 28, 1))
 
     start = cv2.getTickCount()
-    score, qurey, pred, diff = anomaly_detection(test_img)
+    score, qurey, pred, diff = anomaly_detection(test_img, args)
     time = (cv2.getTickCount() - start ) / cv2.getTickFrequency() * 1000
     print ('%d label, %d : done ' %(label_idx, img_idx), '%.2f' %score, '%.2fms'%time)
 
