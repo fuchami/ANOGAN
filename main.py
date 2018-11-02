@@ -170,7 +170,7 @@ def run(args):
     """ matplot view """
     plt.figure(1, figsize=(3, 3))
     plt.title('query image')
-    plt.imshow(qurey.reshape(28, 28) cmap=plt.cm.gray)
+    plt.imshow(qurey.reshape(28, 28), cmap=plt.cm.gray)
 
     print('anomaly score :', score)
     plt.figure(2, figsize=(3,3))
