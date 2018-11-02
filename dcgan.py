@@ -36,20 +36,20 @@ class DCGAN():
 
         if not os.path.exists('./result/'):
             os.makedirs('./result/')
-        if not os.path.exists('./images/'):
-            os.makedirs('./images/')
+        if not os.path.exists('./model_images/'):
+            os.makedirs('./model_images/')
 
         """ build discriminator model """
         self.d = model.discriminator_model(self.img_size)
-        plot_model(self.d, to_file='./images/discriminator.png', show_shapes=True)
+        plot_model(self.d, to_file='./model_images/discriminator.png', show_shapes=True)
 
         """ build generator model """
         self.g = model.generator_model(self.z_dim)
-        plot_model(self.g, to_file='./images/generator', show_shapes=True)
+        plot_model(self.g, to_file='./model_images/generator', show_shapes=True)
 
         """ discriminator on generator model """
         self.d_on_g = model.generator_containg_discriminator(self.g, self.d, self.z_dim)
-        plot_model(self.d_on_g, to_file='./images/d_on_g', show_shapes=True)
+        plot_model(self.d_on_g, to_file='./model_images/d_on_g', show_shapes=True)
 
         self.g.compile(loss='mse', optimizer=self.g_opt)
         self.d_on_g.compile(loss='mse', optimizer=self.g_opt)
