@@ -113,20 +113,20 @@ def anomaly_detector(g=None, d=None):
 
     return model
 
-    """ anomaly detection """
-    def compute_anomaly_score(model, x, iterations=500, d=None):
-        z = np.random.uniform(0, 1, size=(1, 10))
-        
-        intermidiate_model = feature_extractor(d)
-        d_x = intermidiate_model.compile(x)
+""" anomaly detection """
+def compute_anomaly_score(model, x, iterations=500, d=None):
+    z = np.random.uniform(0, 1, size=(1, 10))
+    
+    intermidiate_model = feature_extractor(d)
+    d_x = intermidiate_model.compile(x)
 
-        """ learnig for changin latent """
-        loss = model.fit(z, [x, d_x], batch_size=1, epochs=iterations, verbose=0)
-        similar_data, _ = model.predict(z)
+    """ learnig for changin latent """
+    loss = model.fit(z, [x, d_x], batch_size=1, epochs=iterations, verbose=0)
+    similar_data, _ = model.predict(z)
 
-        loss = loss.history['loss'][-1]
+    loss = loss.history['loss'][-1]
 
-        return loss, similar_data
+    return loss, similar_data
 
 
 

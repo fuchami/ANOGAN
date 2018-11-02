@@ -108,7 +108,7 @@ def anomaly_detection(test_img, g=None, d=None):
 
     np_residual = (255*np_residual).astype(np.uint8)
     origina_x = (test_img.reshape(28,28,1)*127.5+127.5).astype(np.uint8)
-    similar_x = (similar_x.reshape(28,28,1)*127.5+127.5).astype(np.uint8)
+    similar_x = (similar_img.reshape(28,28,1)*127.5+127.5).astype(np.uint8)
 
     original_x_color = cv2.cvtColor(origina_x, cv2.COLOR_GRAY2BGR)
     residual_color = cv2.applyColorMap(np_residual, cv2.COLORMAP_JET)
@@ -151,13 +151,44 @@ def run(args):
 
     """ other class anomaly detection """
 
+    # compute anomaly score - sample from test set
+    #test_img = X_test_original[Y_test==1][30]
+    # compute anomaly score - sample from strange image
+    #test_img = X_test_original[Y_test==0][30]
 
-    
+    # compute anomaly score - sample from strange image
+    img_idx = args.img_idx
+    label_idx = args.label_idx
+    test_img = X_test_original[Y_test==label_idx][img_idx]
+    # test_img = np.random.uniform(-1, 1 (28, 28, 1))
+
+    start = cv2.getTickCount()
+    score, qurey, pred, diff = anomaly_detection(test_img)
+    time = (cv2.getTickCount() - start ) / cv2.getTickFrequency() * 1000
+    print ('%d label, %d : done ' %(label_idx, img_idx), '%.2f' %score, '%.2fms'%time)
+
+    """ matplot view """
+    plt.figure(1, figsize=(3, 3))
+    plt.title('query image')
+    plt.imshow(qurey.reshape(28, 28) cmap=plt.cm.gray)
+
+    print('anomaly score :', score)
+    plt.figure(2, figsize=(3,3))
+    plt.title('generated similar image')
+    plt.imshow(pred.reshape(28, 28), cmap=plt.cm.gray)
+
+    plt.figure(3, figsize=(3,3))
+    plt.title('anomaly detection')
+    plt.imshow(cv2.cvtColor(diff, cv2.COLOR_BGR2RGB))
+    plt.show()
+
 
 def main():
     parser = argparse.ArgumentParser(description='train AnoGAN')
     parser.add_argument('--epoch', '-e', default=300)
     parser.add_argument('--batchsize', '-b', default=64)
+    parser.add_argument('--img_idx', type=int, default=14)
+    parser.add_argument('--label_idx', type=int, default=7)
 
     args = parser.parse_args()
 
