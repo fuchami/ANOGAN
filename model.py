@@ -10,6 +10,7 @@ from keras.layers import Conv2DTranspose, LeakyReLU
 from keras.layers.core import Activation
 from keras.layers.normalization import BatchNormalization
 from keras.optimizers import Adam, RMSprop
+from keras.utils.vis_utils import plot_model
 from keras import backend as K
 from keras import initializers
 import tensorflow as tf
@@ -77,6 +78,8 @@ def feature_extractor(args, d=None):
     
     intermidiate_model = Model(inputs=d.layers[0].input, outputs=d.layers[-7].output)
     intermidiate_model.compile(loss='binary_crossentropy', optimizer='rmsprop')
+
+    plot_model(intermidiate_model, to_file='./model_images/intermidiate_model.png', show_shapes=True)
     return intermidiate_model
 
 """ anomaly GAN loss function """
@@ -106,6 +109,8 @@ def anomaly_detector(args, g=None, d=None ):
     D_out = intermidiate_model(G_out)
     model = Model(inputs=aInput, outputs=[G_out, D_out])
     model.compile(loss=sum_of_residual, loss_weights=[0.90, 0.10], optimizer='rmsprop')
+
+    plot_model(model, to_file='./model_images/anomaly_detector.png', show_shapes=True)
 
     # batchnorm learning phase fixed (test) : make on trainable
     K.set_learning_phase(0)
