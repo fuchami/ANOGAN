@@ -187,7 +187,7 @@ def run(args):
 
 def main():
     parser = argparse.ArgumentParser(description='train AnoGAN')
-    parser.add_argument('--epoch', '-e', default=300)
+    parser.add_argument('--epoch', '-e', default=30)
     parser.add_argument('--batchsize', '-b', default=64)
     parser.add_argument('--img_idx', type=int, default=14)
     parser.add_argument('--label_idx', type=int, default=7)
