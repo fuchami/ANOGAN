@@ -120,7 +120,7 @@ def compute_anomaly_score(args, model, x, iterations=500, d=None):
     d_x = intermidiate_model.predict(x)
 
     """ learnig for changin latent """
-    loss = model.fit(z, [x, d_x], batch_size=1, epochs=iterations, verbose=0)
+    loss = model.fit(z, [x, d_x], batch_size=1, epochs=iterations, verbose=1)
     similar_data, _ = model.predict(z)
 
     loss = loss.history['loss'][-1]

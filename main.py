@@ -7,9 +7,28 @@ import argparse
 import os, sys
 import math
 from tqdm import tqdm
+from sklearn.manifold import TSNE
 
 import model
 import dcgan
+
+def load_mnist_data():
+    """ load mnist data """
+    (X_train, Y_train), (X_test, Y_test) = mnist.load_data()
+    X_train = (X_train.astype(np.float32) - 127.5) / 127.5
+    X_test = (X_test.astype(np.float32) - 127.5) / 127.5
+
+    X_train = X_train[:,:,:,None]
+    X_test = X_test[:,:,:,None]
+
+    X_test_original = X_test.copy()
+
+    X_train = X_train[Y_train==1]
+    X_test = X_test[Y_test==1]
+    print('train shape: ', X_train.shape)
+
+    return X_train, X_test, X_test_original, Y_test 
+
 
 def anomaly_detection(test_img, args, g=None, d=None):
     anogan_model = model.anomaly_detector(args, g=g, d=d)
@@ -29,21 +48,39 @@ def anomaly_detection(test_img, args, g=None, d=None):
     
     return ano_score, original_x, similar_x, show
 
+def tsne(args):
+    X_train, X_test, X_test_original, Y_test = load_mnist_data()
+
+    random_image = np.random.uniform(0, 1, (100, 28,28, 1))
+    print("random noise image")
+    plt.figure(4, figsize=(2,2))
+    plt.title('random noise image')
+    plt.imshow(random_image[0].reshape(28, 28), cmap=plt.cm.gray)
+
+    # intermidieate output of discriminator
+    f = model.feature_extractor(args)
+    feature_map_of_random = f.predict(random_image, verbose=1)
+    feature_map_of_mnist = f.predict(X_test_original[Y_test != 1][:300], verbose=1)
+    feature_map_of_mnist_1 = f.predict(X_test[:100], verbose=1)
+
+    # t-SNE for visualization
+    output = np.concatenate((feature_map_of_random, feature_map_of_mnist, feature_map_of_mnist_1))
+    output = output.reshape(output.shape[0], -1)
+    anomaly_flag = np.array([1]*100 + [0]*300)
+
+    X_embedded = TSNE(n_components=2).fit_transform(output)
+    plt.figure(5)
+    plt.title("t-SNE embedding on the feature representation")
+    plt.scatter(X_embedded[:100, 0], X_embedded[:100, 1], label='random noise(anomaly)')
+    plt.scatter(X_embedded[100:400, 0], X_embedded[100:400, 1], label='mnist(anomaly)')
+    plt.scatter(X_embedded[400:, 0], X_embedded[400:, 1], label='mnist(normal)')
+    plt.legend()
+    plt.show()
+
 def run(args):
 
     """ load mnist data """
-    (X_train, Y_train), (X_test, Y_test) = mnist.load_data()
-    X_train = (X_train.astype(np.float32) - 127.5) / 127.5
-    X_test = (X_test.astype(np.float32) - 127.5) / 127.5
-
-    X_train = X_train[:,:,:,None]
-    X_test = X_test[:,:,:,None]
-
-    X_test_original = X_test.copy()
-
-    X_train = X_train[Y_train==1]
-    X_test = X_test[Y_test==1]
-    print('train shape: ', X_train.shape)
+    X_train, X_test, X_test_original, Y_test = load_mnist_data()
 
     """ init DCGAN """
     print("initialize DCGAN ")
@@ -106,7 +143,6 @@ def run(args):
     plt.imshow(cv2.cvtColor(diff, cv2.COLOR_BGR2RGB))
     plt.show()
 
-
 def main():
     parser = argparse.ArgumentParser(description='train AnoGAN')
     parser.add_argument('--epoch', '-e', default=30)
@@ -120,6 +156,10 @@ def main():
     args = parser.parse_args()
 
     run(args)
+
+    """ t-SNE embedding """
+    ### generating anomaly image for test (random noise image)
+    tsne(args)
 
 if __name__ == '__main__':
     main()
