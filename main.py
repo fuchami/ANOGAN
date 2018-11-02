@@ -35,7 +35,7 @@ def generate_img(batch_size):
     g = model.generator_model()
     g.load_weights('./saved_model/generator.h5')
     noise = np.random.uniform(0, 1, (batch_size, 10))
-    gen_img = g.predict(noise)
+    generate_img = g.predict(noise)
 
     return generate_img
 
@@ -134,6 +134,7 @@ def run(args):
 
     """ train DCGAN(generator & discriminator) """
     if args.mode == 'train':
+        print ('============ train on DCGAN ============')
         model_d, model_g = train_DCGAN(X_train,args.batchsize, args.epoch)
 
     """ test generator """
