@@ -17,8 +17,8 @@ import tensorflow as tf
 from keras.utils.generic_utils import Progbar
 
 """ build generator model """
-def generator_model(): 
-    inputs = Input((10, ))
+def generator_model(z_dim): 
+    inputs = Input((z_dim, ))
     fc1 = Dense(input_dim=10, units=128*7*7)(inputs)
     fc1 = BatchNormalization()(fc1)
     fc1 = LeakyReLU(0.2)(fc1)
@@ -39,8 +39,8 @@ def generator_model():
     return model
     
 """ build discriminator model """
-def discriminator_model():
-    inputs = Input((28, 28, 1))
+def discriminator_model(img_size):
+    inputs = Input((img_size, img_size, 1))
 
     conv1 = Conv2D(64, (5,5), padding='same')(inputs)
     conv1 = LeakyReLU(0.2)(conv1)
@@ -59,11 +59,10 @@ def discriminator_model():
 
     return model
     
-
-def generator_containg_discriminator(g, d):
+def generator_containg_discriminator(g, d, z_dim):
     d.trainable = False
 
-    ganInput = Input(shape=(10, ))
+    ganInput = Input(shape=(z_dim, ))
     x = g(ganInput)
     ganOutput = d(x)
     gan = Model(inputs=ganInput, outputs=ganOutput)
