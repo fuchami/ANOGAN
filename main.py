@@ -68,7 +68,10 @@ def run(args):
     #X_train, X_test, X_test_original, Y_test = load.load_mnist_data()
 
     """ load image data """
-    X_train, test_img = load.load_image_data(args.datapath, args.testpath, args.imgsize, args.mode)
+    #X_train, test_img = load.load_image_data(args.datapath, args.testpath, args.imgsize, args.mode)
+
+    """ load csv data """
+    X_train, Y_test, X_test_original, Y_test = load.load_csv_data(args.datapath, args.imgsize)
 
     """ init DCGAN """
     print("initialize DCGAN ")
@@ -108,15 +111,15 @@ def run(args):
     #test_img = X_test_original[Y_test==0][30]
 
     # compute anomaly score - sample from strange image
-    #img_idx = args.img_idx
-    #label_idx = args.label_idx
-    #test_img = X_test_original[Y_test==label_idx][img_idx]
+    img_idx = args.img_idx
+    label_idx = args.label_idx
+    test_img = X_test_original[Y_test==label_idx][img_idx]
     # test_img = np.random.uniform(-1, 1 (28, 28, 1))
 
     start = cv2.getTickCount()
     score, qurey, pred, diff = anomaly_detection(test_img, args)
     time = (cv2.getTickCount() - start ) / cv2.getTickFrequency() * 1000
-    #print ('%d label, %d : done ' %(label_idx, img_idx), '%.2f' %score, '%.2fms'%time)
+    print ('%d label, %d : done ' %(label_idx, img_idx), '%.2f' %score, '%.2fms'%time)
 
     """ matplot view """
     plt.figure(1, figsize=(3, 3))
@@ -135,12 +138,12 @@ def run(args):
 
 def main():
     parser = argparse.ArgumentParser(description='train AnoGAN')
-    parser.add_argument('--datapath', '-d', default='/media/futami/HDD1/BABA/data/train/BABA/')
+    parser.add_argument('--datapath', '-d',)
     parser.add_argument('--epoch', '-e', default=1000)
     parser.add_argument('--batchsize', '-b', default=32)
     parser.add_argument('--mode', '-m' , type=str, default='test',help='train, test')
-    parser.add_argument('--imgsize', type=int, default=64)
-    parser.add_argument('--channels', type=int, default=3)
+    parser.add_argument('--imgsize', type=int, default=28)
+    parser.add_argument('--channels', type=int, default=1)
     parser.add_argument('--zdims', type=int, default=100)
     parser.add_argument('--testpath', '-p', type=str )
 
