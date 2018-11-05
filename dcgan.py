@@ -39,7 +39,7 @@ class DCGAN():
             os.makedirs('./model_images/')
 
         """ build discriminator model """
-        self.d = model.discriminator_model(self.img_size)
+        self.d = model.discriminator_model(self.img_size, self.channels)
         plot_model(self.d, to_file='./model_images/discriminator.png', show_shapes=True)
 
         """ build generator model """

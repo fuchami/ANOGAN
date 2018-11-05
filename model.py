@@ -19,7 +19,7 @@ from keras.utils.generic_utils import Progbar
 
 """ build generator model """
 def generator_model(z_dim, imgsize, channels): 
-    col = imgsize / 4
+    col = int(imgsize / 4)
     inputs = Input((z_dim, ))
     fc1 = Dense(input_dim=z_dim, units=128*col*col)(inputs)
     fc1 = BatchNormalization()(fc1)
@@ -41,8 +41,8 @@ def generator_model(z_dim, imgsize, channels):
     return model
     
 """ build discriminator model """
-def discriminator_model(img_size):
-    inputs = Input((img_size, img_size, 1))
+def discriminator_model(img_size, channels):
+    inputs = Input((img_size, img_size, channels))
 
     conv1 = Conv2D(64, (5,5), padding='same')(inputs)
     conv1 = LeakyReLU(0.2)(conv1)
@@ -74,7 +74,7 @@ def generator_containg_discriminator(g, d, z_dim):
 """ discriminator intermediate ayer feature extraction """
 def feature_extractor(args, d=None):
     if d is None:
-        d = discriminator_model(args.img_size)
+        d = discriminator_model(args.imgsize, args.channels)
         d.load_weights('./saved_model/discriminator.h5')
     
     intermidiate_model = Model(inputs=d.layers[0].input, outputs=d.layers[-7].output)
@@ -90,7 +90,7 @@ def sum_of_residual(y_true, y_pred):
 """ anomaly detection model """
 def anomaly_detector(args, g=None, d=None ):
     if g is None:
-        g = generator_model(args.zdims, args.imgsize, args.zdims)
+        g = generator_model(args.zdims, args.imgsize, args.channels)
         g.load_weights('./saved_model/generator.h5')
     
     intermidiate_model = feature_extractor(args, d)

@@ -17,17 +17,17 @@ import load
 
 def anomaly_detection(test_img, args, g=None, d=None):
     anogan_model = model.anomaly_detector(args, g=g, d=d)
-    ano_score, similar_img = model.compute_anomaly_score(args, anogan_model, test_img.reshape(1, 28, 28, 1), iterations=500, d=d)
+    ano_score, similar_img = model.compute_anomaly_score(args, anogan_model, test_img.reshape(1, args.imgsize, args.imgsize, args.channels), iterations=500, d=d)
     
     # anomaly area, 255 normalization
-    np_residual = test_img.reshape(args.imgsize, args.imgsize, args.imgsize) - similar_img.reshape(28, 28, 1)
+    np_residual = test_img.reshape(args.imgsize, args.imgsize, args.channels) - similar_img.reshape(args.imgsize, args.imgsize, args.channels)
     np_residual = (np_residual + 2)/4
 
     np_residual = (255*np_residual).astype(np.uint8)
-    original_x = (test_img.reshape(28,28,1)*127.5+127.5).astype(np.uint8)
-    similar_x = (similar_img.reshape(28,28,1)*127.5+127.5).astype(np.uint8)
+    original_x = (test_img.reshape(args.imgsize,args.imgsize,args.channels)*127.5+127.5).astype(np.uint8)
+    similar_x = (similar_img.reshape(args.imgsize,args.imgsize,args.channels)*127.5+127.5).astype(np.uint8)
 
-    original_x_color = cv2.cvtColor(original_x, cv2.COLOR_GRAY2BGR)
+    original_x_color = cv2.cvtColor(original_x, cv2.COLOR_RGB2BGR)
     residual_color = cv2.applyColorMap(np_residual, cv2.COLORMAP_JET)
     show = cv2.addWeighted(original_x_color, 0.3, residual_color, 0.7, 0.)
     
@@ -68,7 +68,7 @@ def run(args):
     #X_train, X_test, X_test_original, Y_test = load.load_mnist_data()
 
     """ load image data """
-    X_train = load.load_image_data(args.dataset_path, args.img_size)
+    X_train, test_img = load.load_image_data(args.datapath, args.testpath, args.imgsize, args.mode)
 
     """ init DCGAN """
     print("initialize DCGAN ")
@@ -108,40 +108,41 @@ def run(args):
     #test_img = X_test_original[Y_test==0][30]
 
     # compute anomaly score - sample from strange image
-    img_idx = args.img_idx
-    label_idx = args.label_idx
-    test_img = X_test_original[Y_test==label_idx][img_idx]
+    #img_idx = args.img_idx
+    #label_idx = args.label_idx
+    #test_img = X_test_original[Y_test==label_idx][img_idx]
     # test_img = np.random.uniform(-1, 1 (28, 28, 1))
 
     start = cv2.getTickCount()
     score, qurey, pred, diff = anomaly_detection(test_img, args)
     time = (cv2.getTickCount() - start ) / cv2.getTickFrequency() * 1000
-    print ('%d label, %d : done ' %(label_idx, img_idx), '%.2f' %score, '%.2fms'%time)
+    #print ('%d label, %d : done ' %(label_idx, img_idx), '%.2f' %score, '%.2fms'%time)
 
     """ matplot view """
     plt.figure(1, figsize=(3, 3))
     plt.title('query image')
-    plt.imshow(qurey.reshape(28, 28), cmap=plt.cm.gray)
+    plt.imshow(qurey.reshape(args.imgsize, args.imgsize, args.channels), cmap=plt.cm.gray)
 
     print('anomaly score :', score)
     plt.figure(2, figsize=(3,3))
     plt.title('generated similar image')
-    plt.imshow(pred.reshape(28, 28), cmap=plt.cm.gray)
+    plt.imshow(pred.reshape(args.imgsize, args.imgsize, args.channels), cmap=plt.cm.gray)
 
-    plt.figure(3, figsize=(3,3))
+    plt.figure(3, figsize=(3,4))
     plt.title('anomaly detection')
     plt.imshow(cv2.cvtColor(diff, cv2.COLOR_BGR2RGB))
     plt.show()
 
 def main():
     parser = argparse.ArgumentParser(description='train AnoGAN')
-    parser.add_argument('--epoch', '-e', default=30)
-    parser.add_argument('--batchsize', '-b', default=64)
+    parser.add_argument('--datapath', '-d', default='/media/futami/HDD1/BABA/data/train/BABA/')
+    parser.add_argument('--epoch', '-e', default=1000)
+    parser.add_argument('--batchsize', '-b', default=32)
     parser.add_argument('--mode', '-m' , type=str, default='test',help='train, test')
-    parser.add_argument('--imgsize', type=int, default=28)
+    parser.add_argument('--imgsize', type=int, default=64)
     parser.add_argument('--channels', type=int, default=3)
-    parser.add_argument('--zdims', type=int, default=10)
-    parser.add_argument('--testpath'type=str)
+    parser.add_argument('--zdims', type=int, default=100)
+    parser.add_argument('--testpath', '-p', type=str )
 
     args = parser.parse_args()
 
@@ -149,7 +150,7 @@ def main():
 
     """ t-SNE embedding """
     ### generating anomaly image for test (random noise image)
-    tsne(args)
+    #tsne(args)
 
 if __name__ == '__main__':
     main()
