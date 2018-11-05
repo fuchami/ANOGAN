@@ -12,30 +12,15 @@ from keras.datasets import mnist
 
 import model
 import dcgan
+import load
 
-def load_mnist_data():
-    """ load mnist data """
-    (X_train, Y_train), (X_test, Y_test) = mnist.load_data()
-    X_train = (X_train.astype(np.float32) - 127.5) / 127.5
-    X_test = (X_test.astype(np.float32) - 127.5) / 127.5
-
-    X_train = X_train[:,:,:,None]
-    X_test = X_test[:,:,:,None]
-
-    X_test_original = X_test.copy()
-
-    X_train = X_train[Y_train==1]
-    X_test = X_test[Y_test==1]
-    print('train shape: ', X_train.shape)
-
-    return X_train, X_test, X_test_original, Y_test 
 
 def anomaly_detection(test_img, args, g=None, d=None):
     anogan_model = model.anomaly_detector(args, g=g, d=d)
     ano_score, similar_img = model.compute_anomaly_score(args, anogan_model, test_img.reshape(1, 28, 28, 1), iterations=500, d=d)
     
     # anomaly area, 255 normalization
-    np_residual = test_img.reshape(28, 28, 1) - similar_img.reshape(28, 28, 1)
+    np_residual = test_img.reshape(args.imgsize, args.imgsize, args.imgsize) - similar_img.reshape(28, 28, 1)
     np_residual = (np_residual + 2)/4
 
     np_residual = (255*np_residual).astype(np.uint8)
@@ -80,7 +65,10 @@ def tsne(args):
 def run(args):
 
     """ load mnist data """
-    X_train, X_test, X_test_original, Y_test = load_mnist_data()
+    #X_train, X_test, X_test_original, Y_test = load.load_mnist_data()
+
+    """ load image data """
+    X_train = load.load_image_data(args.dataset_path, args.img_size)
 
     """ init DCGAN """
     print("initialize DCGAN ")
@@ -149,14 +137,11 @@ def main():
     parser = argparse.ArgumentParser(description='train AnoGAN')
     parser.add_argument('--epoch', '-e', default=30)
     parser.add_argument('--batchsize', '-b', default=64)
-    parser.add_argument('--img_idx', type=int, default=14)
-    parser.add_argument('--label_idx', type=int, default=0)
     parser.add_argument('--mode', '-m' , type=str, default='test',help='train, test')
-    parser.add_argument('--img_size', type=int, default=28)
-    parser.add_argument('--channel', type=int, default=3)
+    parser.add_argument('--imgsize', type=int, default=28)
+    parser.add_argument('--channels', type=int, default=3)
     parser.add_argument('--zdims', type=int, default=10)
     parser.add_argument('--testpath'type=str)
-
 
     args = parser.parse_args()
 

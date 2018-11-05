@@ -22,10 +22,10 @@ import tensorflow as tf
 
 import model
 class DCGAN():
-    def __init__(self, args ):
+    def __init__(self, args):
 
-        self.img_size = args.img_size
-        self.channels = 1
+        self.img_size = args.imgsize
+        self.channels = args.channels
         self.z_dim = args.zdims
         self.epochs = args.epoch
         self.batch_size = args.batchsize
@@ -43,7 +43,7 @@ class DCGAN():
         plot_model(self.d, to_file='./model_images/discriminator.png', show_shapes=True)
 
         """ build generator model """
-        self.g = model.generator_model(self.z_dim)
+        self.g = model.generator_model(self.z_dim, self.img_size, self.channels)
         plot_model(self.g, to_file='./model_images/generator', show_shapes=True)
 
         """ discriminator on generator model """
