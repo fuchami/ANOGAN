@@ -15,18 +15,20 @@ def load_image_data(dataset_path, test_img, img_size, mode):
 
     print(dataset_path)
     print("train image data loading...")
-    train_image_list = glob.glob(dataset_path+'*.jpg')
+    train_image_list = glob.glob(dataset_path+'*.jpeg')
     for img_path in train_image_list:
         print(img_path)
-        img = load_img(img_path, target_size=(img_size, img_size))
+        img = load_img(img_path, target_size=(img_size, img_size), grayscale=True)
         imgarray = img_to_array(img)
         X_train.append(imgarray)
     
     X_train = np.array(X_train).astype(np.float32)
     X_train = (X_train -127.5) / 127.5
+
+    print(X_train.shape)
     
     if mode == 'test':
-        test_img = load_img(test_img, target_size=(img_size, img_size))
+        test_img = load_img(test_img, target_size=(img_size, img_size), grayscale=True)
         test_imgarray = img_to_array(test_img)
         X_test = np.array(test_imgarray).astype(np.float32)
         X_test = (X_test -127.5) / 127.5
@@ -86,8 +88,8 @@ def load_mnist_data():
 
     X_test_original = X_test.copy()
 
-    X_train = X_train[Y_train==1]
-    X_test = X_test[Y_test==1]
+    X_train = X_train[Y_train==0]
+    X_test = X_test[Y_test==0]
     print('train shape: ', X_train.shape)
 
     return X_train, X_test, X_test_original, Y_test 
