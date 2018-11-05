@@ -153,7 +153,10 @@ def main():
     parser.add_argument('--label_idx', type=int, default=0)
     parser.add_argument('--mode', '-m' , type=str, default='test',help='train, test')
     parser.add_argument('--img_size', type=int, default=28)
+    parser.add_argument('--channel', type=int, default=3)
     parser.add_argument('--zdims', type=int, default=10)
+    parser.add_argument('--testpath'type=str)
+
 
     args = parser.parse_args()
 
