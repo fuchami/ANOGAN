@@ -125,18 +125,18 @@ def run(args):
     plt.figure(1, figsize=(3, 3))
     plt.title('query image')
     plt.imshow(qurey.reshape(args.imgsize, args.imgsize), cmap=plt.cm.gray)
-    plt.savefig('./anomaly_detection/' + str(label_idx) +'_query_image.png' )
+    plt.savefig('query_image.png' )
 
     print('anomaly score :', score)
     plt.figure(2, figsize=(3,3))
     plt.title('generated similar image')
     plt.imshow(pred.reshape(args.imgsize, args.imgsize), cmap=plt.cm.gray)
-    plt.savefig('./anomaly_detection/' + str(label_idx) +'_generated_similar.png' )
+    plt.savefig('generated_similar.png' )
 
     plt.figure(3, figsize=(3,3))
     plt.title('anomaly detection')
     plt.imshow(cv2.cvtColor(diff, cv2.COLOR_BGR2RGB))
-    plt.savefig('./anomaly_detection/' + str(label_idx) +'_diff.png' )
+    plt.savefig('diff.png' )
     plt.show()
 
 def main():
@@ -145,7 +145,7 @@ def main():
     parser.add_argument('--epoch', '-e', default=1000)
     parser.add_argument('--batchsize', '-b', default=64)
     parser.add_argument('--mode', '-m' , type=str, default='test',help='train, test')
-    parser.add_argument('--imgsize', type=int, default=64)
+    parser.add_argument('--imgsize', type=int, default=128)
     parser.add_argument('--channels', type=int, default=1)
     parser.add_argument('--zdims', type=int, default=100)
     parser.add_argument('--testpath', '-p', type=str )
