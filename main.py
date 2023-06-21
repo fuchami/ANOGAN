@@ -117,14 +117,14 @@ def run(args):
     #test_img = np.random.uniform(-1, 1 (args.imgsize, args.imgsize, args.channels))
 
     start = cv2.getTickCount()
-    score, qurey, pred, diff = anomaly_detection(test_img, args)
+    score, query, pred, diff = anomaly_detection(test_img, args)
     time = (cv2.getTickCount() - start ) / cv2.getTickFrequency() * 1000
     #print ('%d label, %d : done ' %(label_idx, img_idx), '%.2f' %score, '%.2fms'%time)
 
     """ matplot view """
     plt.figure(1, figsize=(3, 3))
     plt.title('query image')
-    plt.imshow(qurey.reshape(args.imgsize, args.imgsize), cmap=plt.cm.gray)
+    plt.imshow(query.reshape(args.imgsize, args.imgsize), cmap=plt.cm.gray)
     plt.savefig('query_image.png' )
 
     print('anomaly score :', score)
